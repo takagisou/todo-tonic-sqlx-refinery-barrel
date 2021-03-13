@@ -19,9 +19,9 @@ refinery = { version = "0.5.0", features = ["mysql"] }
 barrel = { version = "0.6.5", features = ["mysql"] }
 
 # Tonic-related
-tonic = "0.2"
-prost = "0.6"
-tokio = { version = "0.2", features = ["macros", "sync", "stream", "time"] }
+tonic = "0.4.0"
+prost = "0.7"
+tokio = { version = "1.0", features = ["macros", "sync", "time"] }
 
 # Error type handling
 anyhow = "1.0.31"

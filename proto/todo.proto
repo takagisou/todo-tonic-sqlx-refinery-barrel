@@ -24,7 +24,7 @@ message TodoRequest {
 message TodoResponse {
     int32 id = 1;
     string title = 2;
-    bool is_completed = 3;
+    int32 is_completed = 3;
 }
 
 message TodosResponse {

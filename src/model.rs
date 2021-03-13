@@ -5,7 +5,7 @@ use crate::pb::TodoResponse;
 pub struct Todo {
     pub id: i32, // By default, using barrel's types::primary() results in i32
     pub title: String,
-    pub is_completed: bool,
+    pub is_completed: i8,
 }
 
 type DBResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -14,7 +14,23 @@ type DBResult<T> = Result<T, Box<dyn std::error::Error>>;
 impl Todo {
 
     pub async fn add(pool: &MySqlPool, title: String) -> DBResult<TodoResponse> {
-        let todo = sqlx::query_as!(Todo, "INSERT INTO todos (title) VALUES ( $1 ) RETURNING id, title, is_completed", title)
+        let todo_id = sqlx::query!(
+        r#"
+        INSERT INTO todos ( title )
+        VALUES ( ? )
+        "#,
+        title
+        )
+            .execute(pool)
+            .await?
+            .last_insert_id();
+
+        // let todo = sqlx::query_as!(Todo, "INSERT INTO todos (title) VALUES ( $1 ) RETURNING id, title, is_completed", title)
+        //     .fetch_one(pool)
+        //     .await?;
+        // Ok(todo.into_response())
+
+        let todo = sqlx::query_as!(Todo, "SELECT id, title, is_completed from todos WHERE id = ( ? )", todo_id)
             .fetch_one(pool)
             .await?;
         Ok(todo.into_response())
@@ -40,17 +56,34 @@ impl Todo {
     }
 
     pub async fn get(pool: &MySqlPool, id: i32) -> DBResult<TodoResponse> {
-        let todo = sqlx::query_as!(Todo, "SELECT id, title, is_completed from todos WHERE id = $1", id)
+        let todo = sqlx::query_as!(Todo, "SELECT id, title, is_completed from todos WHERE id = ( ? )", id)
             .fetch_one(pool)
             .await?;
         Ok(todo.into_response())
     }
 
     pub async fn mark_complete(pool: &MySqlPool, id: i32) -> DBResult<TodoResponse> {
-        let todo = sqlx::query_as!(Todo, "UPDATE todos set is_completed = true where id = $1 RETURNING id, title, is_completed", id)
+        let _result = sqlx::query!(
+        r#"
+        UPDATE todos
+        SET is_completed = TRUE
+        WHERE id = ( ? )
+        "#,
+        id)
+            .execute(pool)
+            .await?;
+
+        let todo = sqlx::query_as!(Todo, "SELECT id, title, is_completed from todos WHERE id = ( ? )", id)
             .fetch_one(pool)
             .await?;
         Ok(todo.into_response())
+
+        //
+        //
+        // "UPDATE todos set is_completed = 1 where id = ( ? )", id)
+        //     .fetch_one(pool)
+        //     .await?;
+        // Ok(todo.into_response())
 
     }
 
@@ -60,7 +93,7 @@ impl Todo {
         TodoResponse {
             id: self.id,
             title: self.title.clone(),
-            is_completed: self.is_completed
+            is_completed: From::from(self.is_completed)
         }
 
     }
