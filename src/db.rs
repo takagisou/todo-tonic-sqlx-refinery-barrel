@@ -1,7 +1,8 @@
-use sqlx::postgres::PgPool;
+use sqlx::mysql::MySqlPool;
 use std::env;
 
-pub async fn establish_connection() -> Result<PgPool, Box<dyn std::error::Error>> {
+pub async fn establish_connection() -> Result<MySqlPool, Box<dyn std::error::Error>> {
     let db_url = env::var("DATABASE_URL")?;
-    Ok(PgPool::builder().build(&db_url).await?)
+    print!("db_url: {}", db_url);
+    Ok(MySqlPool::builder().build(&db_url).await?)
 }

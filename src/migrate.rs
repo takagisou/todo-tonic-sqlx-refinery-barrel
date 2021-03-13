@@ -12,10 +12,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db_user = env::var("DB_USER")?;
     let db_pass = env::var("DB_PASS")?;
     let db_name = env::var("DB_NAME")?;
+    println!("db_host: {}, db_port: {}, db_user: {}, db_pass: {}, db_name: {}", db_host, db_port, db_user, db_pass, db_name);
 
     // Refinery and sqlx seem to be using configuration key
     // differently. Thus we need to set it like so
-    let mut conn = Config::new(ConfigDbType::Postgres)
+    let mut conn = Config::new(ConfigDbType::Mysql)
         .set_db_user(&db_user)
         .set_db_pass(&db_pass)
         .set_db_host(&db_host)

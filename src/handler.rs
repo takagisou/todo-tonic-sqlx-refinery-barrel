@@ -1,4 +1,4 @@
-use sqlx::postgres::PgPool;
+use sqlx::mysql::MySqlPool;
 use tonic::{Request, Response, Status};
 
 use crate::model::Todo;
@@ -15,11 +15,11 @@ use crate::pb::{
 // the same connection pool (as opposed to ) establishing connection
 // for every function call
 pub struct TodoService {
-    pool: PgPool
+    pool: MySqlPool
 }
 
 impl TodoService {
-    pub fn new(pool: PgPool) -> Self {
+    pub fn new(pool: MySqlPool) -> Self {
         Self {
             pool
         }
